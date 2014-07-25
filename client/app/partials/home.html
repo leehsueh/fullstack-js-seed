@@ -1,0 +1,22 @@
+<div class="container">
+  <div class="jumbotron">
+    <h1>My App</h1>
+    <p>Current config:</p>
+    <table class="table table-striped table-bordered">
+      <tr ng-repeat="(key, value) in main.config">
+        <td>{{key}}</td>
+        <td>{{value}}</td>
+      </tr>
+    </table>
+    <div class="input-group">
+      <input type="text" class="form-control" ng-model="home.name">
+      <span class="input-group-btn">
+        <button class="btn btn-primary" type="button" ng-click="home.sampleRequest(home.name)">Greet!</button>
+      </span>
+    </div><!-- /input-group -->
+    <div class="alert">
+      <h4>Response</h4>
+      <div>{{home.response}}</div>
+    </div>
+  </div>
+</div>
