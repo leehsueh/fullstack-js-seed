@@ -24,4 +24,4 @@ Thumbs.db
 node_modules
 dist
 .tmp
-client/bower_components
+client/app/bower_components
