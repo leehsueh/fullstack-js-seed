@@ -4,9 +4,11 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
 var io = require('socket.io').listen(server);
 
-var hello = require('./routes/hello');
+var helloRoutes = require('./routes/hello');
+var userRoutes = require('./users/routes');
 
 var app = express();
 var server = require('http').createServer(app);
@@ -20,8 +22,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'client/app')));
 
+// Database setup
+mongoose.connect('mongodb://localhost/test');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error: '));
+db.once('open', function callback() {
+  console.log('DB connected!');
+});
+
 // Routes
-app.use('/api', hello);
+app.use('/api', helloRoutes);
+app.use('/api/users', userRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
