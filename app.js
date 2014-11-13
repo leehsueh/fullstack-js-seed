@@ -1,60 +1,69 @@
-
-/**
- * Module dependencies
- */
-
-var express = require('express'),
-  routes = require('./routes'),
-  api = require('./routes/api'),
-  http = require('http'),
-  path = require('path');
-
-var app = module.exports = express();
-var server = require('http').createServer(app);
+var express = require('express');
+var path = require('path');
+var favicon = require('serve-favicon');
+var logger = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
 var io = require('socket.io').listen(server);
 
-/**
- * Configuration
- */
+var hello = require('./routes/hello');
 
-// all environments
-app.set('port', process.env.PORT || 8000);
-// app.set('views', __dirname + '/views');
-// app.set('view engine', 'jade');
-app.use(express.logger('dev'));
-app.use(express.bodyParser());
-app.use(express.methodOverride());
+var app = express();
+var server = require('http').createServer(app);
+
+
+// uncomment after placing your favicon in /public
+//app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'client/app')));
-app.use(app.router);
 
-// development only
+// Routes
+app.use('/api', hello);
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
+
+// error handlers
+
+// development error handler
+// will print stacktrace
 if (app.get('env') === 'development') {
-  app.use(express.errorHandler());
+  app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.json({
+      message: err.message,
+      error: err
+    });
+  });
 }
 
-// production only
-if (app.get('env') === 'production') {
-  // TODO
-};
-
-
-/**
- * Routes
- */
-
-// JSON API
-app.get('/api/greet/:name', api.name);
-
-// redirect all others to the index (HTML5 history)
-app.get('*', routes.index);
+// production error handler
+// no stacktraces leaked to user
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500);
+  res.json({
+    message: err.message,
+    error: err
+  });
+});
 
 // Socket.io Communication
-io.sockets.on('connection', require('./routes/socket'));
+// io.sockets.on('connection', require('./routes/socket'));
 
 /**
  * Start Server
  */
-
-server.listen(app.get('port'), function () {
+ app.set('port', process.env.PORT || 8000);
+ console.log('Port: ' + app.get('port'))
+ server.listen(app.get('port'), function () {
   console.log('Express server listening on port ' + app.get('port'));
 });
+
+ module.exports = app;
